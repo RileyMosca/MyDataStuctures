@@ -1,3 +1,4 @@
+import java.util.Map;
 
 class HashMapTest {
 
@@ -12,42 +13,31 @@ class HashMapTest {
 
         /* Add some key and value */
         newMap.put("Key_1", 1);
-
-        /* Check that size is now "1" */
-        System.out.println("Actual Size = " + newMap.size()  + ", Expected Size = 1");
-
-        /* Print the head entries key and value */
-        System.out.println("Actual Key = " + newMap.headEntry.key  + ", Expected Key = Key_1");
-        System.out.println("Actual Value = " + newMap.headEntry.value  + ", Expected Value = " +
-                "1");
-
-        /* Check that the key and value exist*/
-        System.out.println("Contains Key (Actual) = " + newMap.containsKey("Key_1")  + ", " +
-                "Contains Key (Expected) = True");
-
-        System.out.println("Contains Value (Actual) = " + newMap.containsValue(1)  + ", " +
-                "Contains Value (Expected) = True");
-
-        /* Add another key and value */
         newMap.put("Key_2", 2);
-
-        /* check that the size has increased should be "2"*/
-        System.out.println("Actual Size = " + newMap.size()  + ", Expected Size = 2");
-
-        /* Add another key and value */
         newMap.put("Key_3", 3);
+        newMap.put("Key_4", 4);
+        newMap.put("Key_5", 5);
+        newMap.put("Key_6", 6);
+        newMap.put("Key_7", 7);
+        newMap.put("Key_8", 8);
+        newMap.put("Key_9", 9);
 
-        /* check that the size has increased should be "2"*/
-        System.out.println("Actual Size = " + newMap.size()  + ", Expected Size = 3");
+        System.out.println("Init toString: \n" + newMap.toString());
+        System.out.println("Init size = " + newMap.size());
 
-        System.out.println(newMap.toString());
-        System.out.println(newMap.peek().value);
+        MapEntry<String, Integer> test = newMap.remove("Key_3");
+        newMap.remove("Key_6");
+        newMap.remove("Key_4");
+        newMap.remove("Key_7");
+        newMap.remove("Key_9");
 
-        System.out.println("Contains Key (Actual) = " + newMap.containsKey("Key_3")  + ", " +
-                "Contains Key (Expected) = True");
-        newMap.remove("Key_3");
-
-        System.out.println("ANSWER = " + "[" + newMap.toString() + "]");
+        System.out.println("Final size  = " + newMap.size());
+        System.out.println("Final toString: \n" + newMap.toString());
+        System.out.println("Contains key (Key_7) [" + newMap.containsKey("Key_7") + "]");
+        System.out.println("Contains Value (7) [" + newMap.containsValue(7) + "]");
+        System.out.println("Contains key (Key_8) [" + newMap.containsKey("Key_8") + "]");
+        System.out.println("Contains Value (8) [" + newMap.containsValue(8) + "]");
+        System.out.println("\n" + newMap.toString());
 
     }
 }
@@ -81,11 +71,6 @@ class HashMap<K, V> {
     /* Initialising Variables as public*/
     public int size = 0;
     public MapEntry<K, V> headEntry;
-
-    /**
-     * Generic constructor for a hash map, initialises an empty hash map
-     */
-    public HashMap() {}
 
     /**
      *  Checks the size of the hash map (by entries)
@@ -154,18 +139,19 @@ class HashMap<K, V> {
      */
     public boolean containsKey(K key) {
 
-        /* head node is null, no entry exists, return false*/
-        if(headEntry == null) return false;
+        MapEntry<K, V> tempEntry = headEntry;
+        boolean containsKey = false;
 
         /* Check every entry in the map until null for the key */
-        while(headEntry != null) {
+        while(tempEntry != null) {
 
-            if(headEntry.key == key) {
-                return true;
+            if(tempEntry.key == key) {
+                containsKey = true;
+                break;
             }
-            headEntry = headEntry.next;
+            tempEntry = tempEntry.next;
         }
-        return false;
+        return containsKey;
     }
 
     /**
@@ -175,19 +161,19 @@ class HashMap<K, V> {
      */
     public boolean containsValue(V value) {
 
-        /* head node is null, no entry exists, return false*/
-        if(headEntry == null) return false;
+        MapEntry<K, V> tempEntry = headEntry;
+        boolean containsValue = false;
 
         /* Check every entry in the map until null for the key */
-        while(headEntry != null) {
+        while(tempEntry != null) {
 
-            if(headEntry.value == value) {
-
-                return true;
+            if(tempEntry.value == value) {
+                containsValue = true;
+                break;
             }
-            headEntry = headEntry.next;
+            tempEntry = tempEntry.next;
         }
-        return false;
+        return containsValue;
     }
 
     /**
@@ -196,27 +182,32 @@ class HashMap<K, V> {
      * @return a MapEntry<K, V> containing the Key Value pair removes
      */
     public MapEntry<K, V> remove(K key) {
+
+
+        /* If there is only a head node (a single entry)*/
+        if(headEntry.key == key) {
+
+            headEntry = headEntry.next;
+            decreaseSize();
+
+            return headEntry;
+        }
+
         MapEntry<K, V> tempEntry = null;
         MapEntry<K, V> entryToRemove = headEntry;
 
-        if(headEntry.key == key) {
-            headEntry = headEntry.next;
-            decreaseSize();
-        }
-
-        if(containsKey(key)) {
-
-            while(headEntry.key != key) {
-
-                entryToRemove = headEntry.next;
-                System.out.println(headEntry.next);
+        while(entryToRemove != null) {
+            if(entryToRemove.key == key) {
+                tempEntry.next = entryToRemove.next;
             }
-
-
-
+            tempEntry = entryToRemove;
+            entryToRemove = entryToRemove.next;
         }
-        return entryToRemove;
+        decreaseSize();
+        return tempEntry;
     }
+
+
 
     /**
      * Peeks the map for the head entry
