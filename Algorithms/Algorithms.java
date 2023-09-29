@@ -11,7 +11,7 @@ public class Algorithms {
      * @return The index of the target value that lies
      * in the sorted input array.
      */
-    public int binarySearch(ArrayList array, int target, boolean displayIteration) {
+    public int binarySearch(ArrayList<Integer> array, int target, boolean displayIteration) {
 
         /* Declaring default starting points for min/max */
         int min = 0;
@@ -33,12 +33,12 @@ public class Algorithms {
             manipulate min/max values for
             new guess and try again.
         * */
-            if ((int)array.get(guess) == target) {
+            if (array.get(guess) == target) {
                 if(displayIteration) {
                     System.out.println("Binary Iteration Count = " + iterCount);
                 }
                 return guess;
-            } else if ((int)array.get(guess) < target) {
+            } else if (array.get(guess) < target) {
                 min = guess + 1; // Adjust the min index
             } else {
                 max = guess - 1; // Adjust the max index
@@ -57,12 +57,12 @@ public class Algorithms {
      * @param target Target value we are searching for
      * @return Index of the position the target lies.
      */
-    public int linearSearch(ArrayList array, int target, boolean displayIteration) {
+    public int linearSearch(ArrayList<Integer> array, int target, boolean displayIteration) {
         int iterCount = 0;
         /* Iterate across all indices */
         for(int idx  = 0; idx < array.count; idx++) {
             iterCount++;
-            if((int)array.get(idx) == target) {
+            if(array.get(idx) == target) {
                 if(displayIteration) {
                     System.out.println("Linear Iteration Count = " + iterCount);
                 }
@@ -79,7 +79,7 @@ public class Algorithms {
      * @param target A target to find.
      * @return
      */
-    public int interpolationSearch(ArrayList array, int target, boolean displayIteration) {
+    public int interpolationSearch(ArrayList<Integer> array, int target, boolean displayIteration) {
 
         /* Declaring left and right indices */
         int leftIdx = 0;
@@ -87,11 +87,11 @@ public class Algorithms {
         int iterCount = 0;
 
         while((leftIdx <= rightIdx)
-                && ((int)array.get(leftIdx) <= target)
-                && (target <= (int)array.get(rightIdx))) {
+                && (array.get(leftIdx) <= target)
+                && (target <= array.get(rightIdx))) {
             iterCount++;
             if(leftIdx == rightIdx) {
-                if((int)array.get(leftIdx) == target) {
+                if(array.get(leftIdx) == target) {
                     if(displayIteration) {
                         System.out.println("Interpolation Iteration Count = " + iterCount );
                     }
@@ -102,17 +102,17 @@ public class Algorithms {
             }
 
             /* Calculations for interpolation of position */
-            int rightLeftDiff_Val = (int)array.get(rightIdx) -  (int)array.get(leftIdx);
+            int rightLeftDiff_Val = array.get(rightIdx) - array.get(leftIdx);
             int rightLeftDiff_Idx = rightIdx - leftIdx;
-            int targetDiff = target -  (int)array.get(leftIdx);
+            int targetDiff = target -  array.get(leftIdx);
             int position = leftIdx + ((targetDiff * rightLeftDiff_Idx) / (rightLeftDiff_Val));
 
-            if((int)array.get(position) == target) {
+            if(array.get(position) == target) {
                 if(displayIteration) {
                     System.out.println("Interpolation Iteration Count = " + iterCount);
                 }
                 return position;
-            } else if((int)array.get(position) < target) {
+            } else if(array.get(position) < target) {
                 leftIdx = position + 1;
             } else {
                 rightIdx = position - 1;
@@ -122,14 +122,14 @@ public class Algorithms {
         return -1;
     }
 
-    public ArrayList insertionSort(ArrayList array) {
+    public ArrayList<Integer> insertionSort(ArrayList<Integer> array) {
         return null;
     }
 
-    public ArrayList generateSortedArray(int elements) {
+    public ArrayList<Integer> generateSortedArray(int elements) {
 
         /* Create a default list of size 100 first */
-        ArrayList list =  new ArrayList(100);
+        ArrayList<Integer> list =  new ArrayList<>(100);
 
         /* Add all elements */
         for(int i  = 0; i < elements; i++) {
@@ -147,7 +147,7 @@ public class Algorithms {
         int arr_size = 20000;
 
         /* Create a sorted array */
-        ArrayList sorted = algo.generateSortedArray(arr_size);
+        ArrayList<Integer> sorted = algo.generateSortedArray(arr_size);
 
         /* Storing total runtimes for all searches */
         long lin_sor_tot = 0;
