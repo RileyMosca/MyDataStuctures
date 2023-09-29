@@ -1,61 +1,16 @@
-class HashMapTest {
+//TODO Replace with my own linked list implementation
+import java.util.LinkedList;
 
-    /***
-     * Test code in main
-     * @param args default args
-     */
-    public static void main(String[] args) {
-
-        HashMap<String, Integer> newMap = new HashMap<>();
-        System.out.println(newMap.size());
-
-        /* Add some key and value */
-        newMap.put("Key_1", 1);
-        newMap.put("Key_2", 2);
-        newMap.put("Key_3", 3);
-        newMap.put("Key_4", 4);
-        newMap.put("Key_5", 5);
-        newMap.put("Key_6", 6);
-        newMap.put("Key_7", 7);
-        newMap.put("Key_8", 8);
-        newMap.put("Key_9", 9);
-
-        System.out.println("Init toString: \n" + newMap.toString());
-        System.out.println("Init size = " + newMap.size());
-
-        MapEntry<String, Integer> test = newMap.remove("Key_3");
-        newMap.remove("Key_6");
-        newMap.remove("Key_4");
-        newMap.remove("Key_7");
-        newMap.remove("Key_9");
-
-        System.out.println("Final size  = " + newMap.size());
-        System.out.println("Final toString: \n" + newMap.toString());
-        System.out.println("Contains key (Key_7) [" + newMap.containsKey("Key_7") + "]");
-        System.out.println("Contains Value (7) [" + newMap.containsValue(7) + "]");
-        System.out.println("Contains key (Key_8) [" + newMap.containsKey("Key_8") + "]");
-        System.out.println("Contains Value (8) [" + newMap.containsValue(8) + "]");
-        System.out.println("\n" + newMap.toString());
-
-    }
-}
-
-/**
- *  C
- * @param <K> Data type for Key is set to K for generics
- * @param <V> Data type for Value is set to V for generics
- */
 class MapEntry<K, V> {
-
-    /* Initialising Hash Map elements as public elements */
     public K key;
     public V value;
     public MapEntry<K, V> next;
 
     /**
-     * Constructor for Hash Map entry, taking a key and value pair
-     * @param key The key of the entry (with T type)
-     * @param value The value of the entry (with T type)
+     * Constructs a MapEntry with the specified key and value.
+     *
+     * @param key   The key of the entry.
+     * @param value The value associated with the key.
      */
     public MapEntry(K key, V value) {
         this.key = key;
@@ -65,170 +20,242 @@ class MapEntry<K, V> {
 }
 
 class HashMap<K, V> {
+    private static final int INITIAL_CAPACITY = 16;
+    private static final double LOAD_FACTOR_THRESHOLD = 0.75;
 
-    /* Initialising Variables as public*/
-    public int size = 0;
-    public MapEntry<K, V> headEntry;
+    //TODO Use my own Linked List
+    private LinkedList<MapEntry<K, V>>[] buckets;
+    private int size;
 
     /**
-     *  Checks the size of the hash map (by entries)
-     * @return returns the size as an integer
+     * Constructs an empty HashMap with the initial capacity.
      */
-    public int size() {
-        return size;
+    public HashMap() {
+        this.buckets = new LinkedList[INITIAL_CAPACITY];
+        this.size = 0;
     }
 
     /**
-     * Increasing the size of the hash map by 1
+     * Returns the number of key-value mappings in this map.
+     *
+     * @return The number of key-value mappings.
+     */
+    public int size() {
+        return this.size;
+    }
+
+    /**
+     * Returns true if this map contains no key-value mappings.
+     *
+     * @return true if this map is empty, false otherwise.
+     */
+    public boolean isEmpty() {
+        return this.size == 0;
+    }
+
+    /**
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old value is replaced.
+     *
+     * @param key   The key with which the specified value is to be associated.
+     * @param value The value to be associated with the specified key.
+     * @return The previous value associated with the specified key, or
+     * null if there was no mapping for the key.
+     */
+    public V put(K key, V value) {
+        /*
+            Get the Hash Index/ Hash
+            Code for this element
+        */
+        int index = getIndex(key);
+
+        /* Checks to replace old value at key */
+        for (MapEntry<K, V> entry : buckets[index]) {
+            if (entry.key.equals(key)) {
+                V oldValue = entry.value;
+                entry.value = value;
+                return oldValue;
+            }
+        }
+
+        /* Add item to the bucket, and increase the size */
+        buckets[index].add(new MapEntry<>(key, value));
+        this.increaseSize();
+
+        /*
+            Check if the ratio of size to
+            capacity exceeds/ equals load factor
+        */
+        if ((double) size / buckets.length >= LOAD_FACTOR_THRESHOLD) {
+            resize();
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the value to which the specified key is mapped, or
+     * null if this map contains no mapping for the key.
+     *
+     * @param key The key whose associated value is to be returned.
+     * @return The value to which the specified key is mapped, or
+     * null if there is no mapping for the key.
+     */
+    public V get(K key) {
+        /* Find gthe index of the key we are checking */
+        int index = getIndex(key);
+        if (buckets[index] != null) {
+            for (MapEntry<K, V> entry : buckets[index]) {
+                if (entry.key.equals(key)) {
+                    return entry.value;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Removes the mapping for the specified key from this map if present.
+     *
+     * @param key The key whose mapping is to be removed from the map.
+     * @return The previous value associated with the specified key, or null if there was no mapping for the key.
+     */
+    public V remove(K key) {
+        int index = this.getIndex(key);
+        if (this.buckets[index] != null) {
+            for (MapEntry<K, V> entry : this.buckets[index]) {
+                if (entry.key.equals(key)) {
+                    V removedValue = entry.value;
+                    this.buckets[index].remove(entry);
+                    this.decreaseSize();
+                    return removedValue;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns true if this map contains a mapping for the specified key.
+     *
+     * @param key The key whose presence in this map is to be tested.
+     * @return true if this map contains a mapping for the specified key, false otherwise.
+     */
+    public boolean containsKey(K key) {
+        int index = this.getIndex(key);
+        if (this.buckets[index] != null) {
+            for (MapEntry<K, V> entry : this.buckets[index]) {
+                if (entry.key.equals(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this map contains a mapping for the specified value.
+     *
+     * @param value The value whose presence in this map is to be tested.
+     * @return true if this map contains a mapping for the specified value, false otherwise.
+     */
+    public boolean containsValue(V value) {
+        for (LinkedList<MapEntry<K, V>> bucket : this.buckets) {
+            if (bucket != null) {
+                for (MapEntry<K, V> entry : bucket) {
+                    if (entry.value.equals(value)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * Increases the size of the hash map by 1.
      */
     public void increaseSize() {
         this.size++;
     }
 
     /**
-     * Decreasing the size of the hash map by 1
+     * Decreases the size of the hash map by 1.
      */
     public void decreaseSize() {
         this.size--;
     }
 
     /**
-     *  Checks whether the map is empty
-     * @return returns true if empty, false otherwise
-     */
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public K put(K key, V value) {
-
-        MapEntry<K, V> newEntry = new MapEntry<>(key, value);
-        newEntry.key = key;
-        newEntry.value = value;
-        newEntry.next = null;
-
-        /* No entries present, therefore this is the "head entry" */
-        if(headEntry == null) {
-
-            headEntry = newEntry;
-        } else {
-
-            MapEntry<K, V> existingEntry = headEntry;
-            /* Init of new map entry to add to existing non empty map */
-            while(existingEntry.next != null) {
-
-                existingEntry = existingEntry.next;
-            }
-            existingEntry.next = newEntry;
-        }
-
-
-        /* Increase the size, now that an element has been removed */
-        increaseSize();
-
-        /* return the key that has been inputted into the map */
-        return key;
-    }
-
-    /**
-     *  Checks that the hash map contains the specified key
-     * @param key the key we are checking in the hash map
-     * @return true if key exists in map, false otherwise
-     */
-    public boolean containsKey(K key) {
-
-        MapEntry<K, V> tempEntry = headEntry;
-        boolean containsKey = false;
-
-        /* Check every entry in the map until null for the key */
-        while(tempEntry != null) {
-
-            if(tempEntry.key == key) {
-                containsKey = true;
-                break;
-            }
-            tempEntry = tempEntry.next;
-        }
-        return containsKey;
-    }
-
-    /**
-     *  Checks that the hash map contains the specified key
-     * @param value the value we are checking in the hash map
-     * @return true if value exists in map, false otherwise
-     */
-    public boolean containsValue(V value) {
-
-        MapEntry<K, V> tempEntry = headEntry;
-        boolean containsValue = false;
-
-        /* Check every entry in the map until null for the key */
-        while(tempEntry != null) {
-
-            if(tempEntry.value == value) {
-                containsValue = true;
-                break;
-            }
-            tempEntry = tempEntry.next;
-        }
-        return containsValue;
-    }
-
-    /**
-     * Removes and returns the
-     * @param key of the entry to remove
-     * @return a MapEntry<K, V> containing the Key Value pair removes
-     */
-    public MapEntry<K, V> remove(K key) {
-
-
-        /* If there is only a head node (a single entry)*/
-        if(headEntry.key == key) {
-
-            headEntry = headEntry.next;
-            decreaseSize();
-
-            return headEntry;
-        }
-
-        MapEntry<K, V> tempEntry = null;
-        MapEntry<K, V> entryToRemove = headEntry;
-
-        while(entryToRemove != null) {
-            if(entryToRemove.key == key) {
-                tempEntry.next = entryToRemove.next;
-            }
-            tempEntry = entryToRemove;
-            entryToRemove = entryToRemove.next;
-        }
-        decreaseSize();
-        return tempEntry;
-    }
-
-
-
-    /**
-     * Peeks the map for the head entry
-     * @return returns the head entry as a MapEntry<K, V>
-     *         with key value pair
-     */
-    public MapEntry<K, V> peek() {
-        return headEntry;
-    }
-
-    /**
-     * Prints out the key value pairs
+     * Returns a string representation of this map.
+     *
+     * @return A string representation of this map.
      */
     @Override
     public String toString() {
-        MapEntry<K, V> entryToPrint = headEntry;
         StringBuilder result = new StringBuilder();
+        result.append("{");
 
-        while(entryToPrint != null) {
-            result.append("Key = ").append(entryToPrint.key)
-                    .append(", Value = ").append(entryToPrint.value).append("\n");
-            entryToPrint = entryToPrint.next;
+        for (LinkedList<MapEntry<K, V>> bucket : this.buckets) {
+            if (bucket != null) {
+                for (MapEntry<K, V> entry : bucket) {
+                    result.append(entry.key).append("=").append(entry.value).append(", ");
+                }
+            }
         }
+
+        if (result.length() > 1) {
+            result.setLength(result.length() - 2);
+        }
+
+        result.append("}");
         return result.toString();
+    }
+
+    private int getIndex(K key) {
+        int hashCode = key.hashCode();
+        return hashCode % buckets.length;
+    }
+
+    private void resize() {
+        int newCapacity = this.buckets.length * 2;
+        LinkedList<MapEntry<K, V>>[] newBuckets = new LinkedList[newCapacity];
+
+        for (LinkedList<MapEntry<K, V>> bucket : this.buckets) {
+            if (bucket != null) {
+                for (MapEntry<K, V> entry : bucket) {
+                    int index = this.getIndex(entry.key, newCapacity);
+                    if (newBuckets[index] == null) {
+                        newBuckets[index] = new LinkedList<>();
+                    }
+                    newBuckets[index].add(entry);
+                }
+            }
+        }
+
+        buckets = newBuckets;
+    }
+
+    private int getIndex(K key, int capacity) {
+        int hashCode = key.hashCode();
+        return hashCode % capacity;
+    }
+}
+
+class HashMapTest {
+    public static void main(String[] args) {
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        hashMap.put("one", 1);
+        hashMap.put("two", 2);
+        hashMap.put("three", 3);
+
+        System.out.println("Size: " + hashMap.size());
+        System.out.println("Value for 'two': " + hashMap.get("two"));
+
+        hashMap.remove("two");
+
+        System.out.println("Size after removal: " + hashMap.size());
+        System.out.println("Contains key 'two': " + hashMap.containsKey("two"));
+
+        System.out.println("HashMap Contents: " + hashMap);
     }
 }
