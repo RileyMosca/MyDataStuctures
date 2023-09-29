@@ -188,7 +188,7 @@ class BinaryTree {
      * @param arrayList The ArrayList we will update
      * @return An ArrayList of all values.
      */
-    public ArrayList binaryTreeArray(TreeNode node, ArrayList arrayList) {
+    public ArrayList<Integer> binaryTreeArray(TreeNode node, ArrayList<Integer> arrayList) {
         /* Base Case: Node is null */
         if (node == null) {
             return arrayList;
@@ -254,5 +254,43 @@ class BinaryTree {
         postorderTraversal(node.left);
         postorderTraversal(node.right);
         System.out.print(node.val + " ");
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        BinaryTree tree = new BinaryTree();
+
+        // Insert some values into the tree
+        tree.insert(13);
+        tree.insert(4);
+        tree.insert(5);
+        tree.insert(7);
+        tree.insert(20);
+        tree.insert(6);
+        tree.insert(15);
+        tree.insert(14);
+        tree.insert(16);
+        tree.insert(25);
+        tree.insert(12);
+        tree.insert(11);
+        tree.insert(9);
+
+
+
+        System.out.println(tree.binaryTreeArray(tree.root, new ArrayList<>()));
+
+
+        // Perform a search and print the result
+        System.out.println("Search for 40: " + tree.search(40)); // Should print true
+        System.out.println("Search for 90: " + tree.search(90)); // Should print false
+
+        // Perform a deletion
+        tree.delete(70);
+        System.out.println(tree.binaryTreeArray(tree.root, new ArrayList<>()));
+
+        tree.inorderTraversal(tree.root);
+        tree.preorderTraversal(tree.root);
+        tree.postorderTraversal(tree.root);
     }
 }

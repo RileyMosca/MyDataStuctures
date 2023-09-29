@@ -222,19 +222,9 @@ public class ArrayList<T> {
 
         return sb.toString();
     }
+}
 
-    @Override
-    public int hashCode() {
-        int hashCode = 0;
-        for (int i = 0; i < this.count; i++) {
-            T element = this.array[i];
-            if (element != null) {
-                hashCode += element.hashCode() * ((i + 1) * (i + 2));
-            }
-        }
-        return hashCode;
-    }
-
+class TestArrayList {
     public static void main(String[] args) {
 
         /* Init X Array */
@@ -243,11 +233,10 @@ public class ArrayList<T> {
         x.addItem(1);
         x.addItem(2);
         x.addItem(3);
-        System.out.println(x);
+        System.out.println("Array X: " + x);
 
         x.remove(1);
-
-        System.out.println(x);
+        System.out.println("Removing Idx 1 (2) from Array X: " + x);
 
         /* Init Y Array */
         ArrayList<Integer> y = new ArrayList<>(5);
@@ -255,17 +244,6 @@ public class ArrayList<T> {
         y.addItem(1);
         y.addItem(2);
         y.addItem(3);
-
-        System.out.println("Array X");
-        String display_x = x.toString();
-        System.out.println(display_x);
-        System.out.println("Size = " + x.size + ", Count = " + x.count + " Hashcode = " + x.hashCode());
-
-        System.out.println("Array Y");
-        String display_y = y.toString();
-        System.out.println(display_y);
-        System.out.println("Size = " + y.size + ", Count = " + y.count + " Hashcode = " + y.hashCode());
-
-        System.out.println(x.hashCode() == y.hashCode() ? "MATCH" : "DIFFERENT");
+        System.out.println("Array Y: " + y);
     }
 }
